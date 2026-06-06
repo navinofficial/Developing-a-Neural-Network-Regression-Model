@@ -1,12 +1,33 @@
 # Developing a Neural Network Regression Model
+
 ## AIM
 To develop a neural network regression model for the given dataset.
 
 ## THEORY
-Explain the problem statement
+A Neural Network Regression Model is a deep learning technique used to predict continuous numerical values from input data. In this program, the regression model is implemented using the PyTorch library. The model learns the relationship between input and output values through training and minimizes prediction error using optimization techniques.
+
+The dataset is first loaded using the Pandas library. The input and output values are separated into features (X) and target values (y). The dataset is divided into training and testing data using train_test_split() from Scikit-learn. Data normalization is performed using MinMaxScaler to scale the values between 0 and 1, which improves the training performance of the neural network.
+
+The neural network consists of:
+
+Input Layer – accepts one input feature.
+Hidden Layers – two fully connected layers with 8 and 10 neurons.
+Activation Function – ReLU (Rectified Linear Unit) introduces non-linearity.
+Output Layer – produces a single continuous numerical output.
+
+The model is created by inheriting the nn.Module class in PyTorch. Forward propagation is implemented in the forward() function, where input data passes through hidden layers and activation functions to generate predictions.
+
+The training process uses:
+
+Loss Function: Mean Squared Error (MSELoss), which calculates the difference between predicted and actual values.
+Optimizer: RMSprop optimizer, which updates model weights efficiently during backpropagation.
+Epochs: The model is trained repeatedly for 2000 iterations to reduce loss.
+
+During training, the loss value is stored and plotted using Matplotlib to visualize model learning performance. After training, the model is evaluated using test data, and predictions are generated for new input values.
 
 ## Neural Network Model
-<img width="1100" height="699" alt="image" src="https://github.com/user-attachments/assets/5e8bddd0-cc0a-4aa2-911b-71a4351750b7" />
+<img width="852" height="634" alt="image" src="https://github.com/user-attachments/assets/8d5afcac-cb9d-48d0-abaa-1fe42e2bdda5" />
+
 
 ## DESIGN STEPS
 ### STEP 1: 
@@ -43,11 +64,52 @@ Use the trained model to predict  for a new input value .
 
 ## PROGRAM
 
-### Name:Navinkumar V
+### Name:  Navinkumar V
 
-### Register Number:212223230141
+### Register Number:  212223230141
 
-```
+```python
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+dataset1 = pd.read_csv('/content/DEEP DOCS - Sheet1.csv')
+X = dataset1[['INPUT']].values
+y = dataset1[['OUTPUT']].values
+dataset1.head()
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=33)
+scaler = MinMaxScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+X_train_tensor = torch.tensor(X_train, dtype=torch.float32)
+y_train_tensor = torch.tensor(y_train, dtype=torch.float32).view(-1, 1)
+X_test_tensor = torch.tensor(X_test, dtype=torch.float32)
+y_test_tensor = torch.tensor(y_test, dtype=torch.float32).view(-1, 1)
+# Name:  Navinkumar V
+# Register Number: 212223230141
+class NeuralNet(nn.Module):
+  def __init__(self):
+        super().__init__()
+        self.fc1=nn.Linear(1,8)
+        self.fc2=nn.Linear(8,10)
+        self.fc3=nn.Linear(10,1)
+        self.relu=nn.ReLU()
+        self.history={'Loss': []}
+
+  def forward(self,x):
+    x=self.relu(self.fc1(x))
+    x=self.relu(self.fc2(x))
+    x=self.fc3(x)
+    return x
+
+
+
+
+lig=NeuralNet()
+criterion=nn.MSELoss()
+optimizer=optim.RMSprop(lig.parameters(),lr=0.001)
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -55,85 +117,52 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
-dataset1 = pd.read_csv('/content/Deep learning - Sheet1 - Deep learning - Sheet1.csv')
-X = dataset1[['input']].values
-y = dataset1[['output']].values
-dataset1.head()
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=33)
-
-scaler = MinMaxScaler()
-X_train = scaler.fit_transform(X_train)
-X_test = scaler.transform(X_test)
-
-X_train_tensor = torch.tensor(X_train, dtype=torch.float32)
-y_train_tensor = torch.tensor(y_train, dtype=torch.float32).view(-1, 1)
-X_test_tensor = torch.tensor(X_test, dtype=torch.float32)
-y_test_tensor = torch.tensor(y_test, dtype=torch.float32).view(-1, 1)
-
-class NeuralNet(nn.Module):
-  def __init__(self):
-        super().__init__()
-        # Include your code here
-        self.fc1 = nn.Linear(1,8)
-        self.fc2 = nn.Linear(8,10) # Corrected: defined fc2
-        self.fc3 = nn.Linear(10,1) # Corrected: renamed to fc3 and proper size
-        self.relu = nn.ReLU()
-        self.history = {'loss': []}
-  def forward(self,x):
-        x = self.relu(self.fc1(x)) # Corrected: called as self.fc1(x) and removed extra self from relu
-        x = self.relu(self.fc2(x)) # Corrected: called as self.fc2(x) and removed extra self from relu
-        x = self.fc3(x)
-        return x
-
-lig=NeuralNet()
-criterion=nn.MSELoss()
-optimizer=optim.RMSprop(lig.parameters())
-
- def train_model(ai_brain, X_train, y_train, criterion, optimizer, epochs=2000):
-    # Write your code here
-     for epoch in range (epochs):
+# Name: Navinkumar V
+# Register Number: 212223230141
+def train_model(ai_brain, X_train, y_train, criterion, optimizer, epochs=2000):
+    for epoch in range(epochs):
       optimizer.zero_grad()
-      loss = criterion(ai_brain(X_train),y_train)
+      loss=criterion(ai_brain(X_train),y_train)
       loss.backward()
       optimizer.step()
-      ai_brain.history['loss'].append(loss.item())
+      lig.history['Loss'].append(loss.item())
       if epoch % 200 == 0:
-         print(f'Epoch [{epoch}/{epochs}], Loss: {loss.item():.6f}')
-
+        print(f'Epoch [{epoch}/{epochs}], Loss: {loss.item():.6f}')
 train_model(lig, X_train_tensor, y_train_tensor, criterion, optimizer)
 
 with torch.no_grad():
     test_loss = criterion(lig(X_test_tensor), y_test_tensor)
     print(f'Test Loss: {test_loss.item():.6f}')
 
-loss_df = pd.DataFrame(lig.history)
-
 import matplotlib.pyplot as plt
-loss_df.plot()
+plt.plot(lig.history['Loss'])
 plt.xlabel("Epochs")
 plt.ylabel("Loss")
-plt.title("Loss during Training")
-plt.show()
-
+plt.title("Loss Curve")
 X_n1_1 = torch.tensor([[9]], dtype=torch.float32)
 prediction = lig(torch.tensor(scaler.transform(X_n1_1), dtype=torch.float32)).item()
 print(f'Prediction: {prediction}')
+
 ```
 
 ### Dataset Information
-<img width="151" height="194" alt="image" src="https://github.com/user-attachments/assets/6e1f02dc-5683-477e-98a7-c4be13cc648d" />
+<img width="298" height="296" alt="image" src="https://github.com/user-attachments/assets/b6ff5016-4603-47c5-97a6-84882855055c" />
 
 
 ### OUTPUT
-<img width="288" height="182" alt="image" src="https://github.com/user-attachments/assets/39a5d5b4-c637-4221-b7c3-dcc655c9d9c3" />
+<img width="375" height="230" alt="image" src="https://github.com/user-attachments/assets/8f307a66-564c-45df-8959-45117317b04c" />
+<img width="269" height="42" alt="image" src="https://github.com/user-attachments/assets/08b3a758-f8f9-417b-8eda-436f1e78811d" />
+
+
+
+
+
 
 ### Training Loss Vs Iteration Plot
-<img width="583" height="451" alt="image" src="https://github.com/user-attachments/assets/7d58d325-afe5-4b2e-83f3-26aaac62d276" />
+<img width="754" height="583" alt="image" src="https://github.com/user-attachments/assets/adab5547-e919-4ba8-9741-5f291551986c" />
 
 ### New Sample Data Prediction
-<img width="250" height="24" alt="image" src="https://github.com/user-attachments/assets/bde21c5e-ea45-4c24-9438-262f488c8cb6" />
-
+<img width="400" height="35" alt="image" src="https://github.com/user-attachments/assets/900bc538-d2a0-4a49-b32e-75fa517e5465" />
 
 ## RESULT
 Thus, a neural network regression model was successfully developed and trained using PyTorch.
